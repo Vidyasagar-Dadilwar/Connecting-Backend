@@ -340,7 +340,7 @@ const updateUserCoverImage = asyncHandler( async(req, res) =>{
       )
     );
   } catch (error) {
-    new ApiError(401,error?.message || "Failed to update cover image");
+    throw new ApiError(401,error?.message || "Failed to update cover image");
   }
 })
 
