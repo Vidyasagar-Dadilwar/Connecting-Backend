@@ -14,8 +14,7 @@ router.route("/tweets").post(verifyJWT, createTweet); // Route to create a new t
 
 router.route("/tweets/user/:userId").get(getUserTweets); // Route to get tweets of a specific user
 
-router.route("/tweets/:tweetId")
-        .put(verifyJWT, updateTweet) // Route to update a tweet by ID
+router.route("/tweets/:tweetId").put(verifyJWT, updateTweet) // Route to update a tweet by ID
         .delete(verifyJWT, deleteTweet); // Route to delete a tweet by ID
 
 export default router;
