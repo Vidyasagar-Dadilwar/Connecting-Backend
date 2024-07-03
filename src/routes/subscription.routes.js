@@ -1,14 +1,19 @@
 import { Router } from "express";
-import { upload } from "../middlewares/multer.middleware.js";
+import {
+  getSubscribedChannels,
+  getUserChannelSubscribers,
+  toggleSubscription,
+} from "../controllers/subscription.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
-import { getSubscribedChannels, getUserChannelSubscribers, toggleSubscription } from "../controllers/subscription.controller.js";
 
 const router = Router();
+router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
 
-router.route("/channels/:channelId/toggle-subscription").put(verifyJWT, toggleSubscription);
+router
+  .route("/c/:channelId")
+  .get(getSubscribedChannels)
+  .post(toggleSubscription);
 
-router.route("/channels/:channelId/subscribers").get(verifyJWT, getUserChannelSubscribers);
-
-router.route("/user/:subscriberId/subscriptions").get(verifyJWT, getSubscribedChannels);
+router.route("/u/:subscriberId").get(getUserChannelSubscribers);
 
 export default router;

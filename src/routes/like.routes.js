@@ -1,16 +1,18 @@
 import { Router } from "express";
-import { upload } from "../middlewares/multer.middleware.js";
+import {
+  getLikedVideos,
+  toggleCommentLike,
+  toggleVideoLike,
+  toggleTweetLike,
+} from "../controllers/like.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
-import { getLikedVideos, toggleCommentLike, toggleTweetLike, toggleVideoLike } from "../controllers/like.controller.js";
 
 const router = Router();
+router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
 
-router.route("/toggle-video-like/video/:videoId").put(verifyJWT, toggleVideoLike);
-
-router.route("/toggle-comment-like/comment/:commentId").put(verifyJWT, toggleCommentLike);
-
-router.route("/toggle-tweet-like/tweet/:tweetId").put(verifyJWT, toggleTweetLike);
-
-router.route("/liked-videos").get(verifyJWT, getLikedVideos);
+router.route("/toggle/v/:videoId").post(toggleVideoLike);
+router.route("/toggle/c/:commentId").post(toggleCommentLike);
+router.route("/toggle/t/:tweetId").post(toggleTweetLike);
+router.route("/videos").get(getLikedVideos);
 
 export default router;

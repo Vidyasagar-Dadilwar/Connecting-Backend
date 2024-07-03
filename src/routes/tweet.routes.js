@@ -1,20 +1,17 @@
 import { Router } from "express";
-import { upload } from "../middlewares/multer.middleware.js";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
 import {
   createTweet,
   deleteTweet,
   getUserTweets,
   updateTweet,
 } from "../controllers/tweet.controller.js";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = Router();
+router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
 
-router.route("/tweets").post(verifyJWT, createTweet); // Route to create a new tweet
-
-router.route("/tweets/user/:userId").get(getUserTweets); // Route to get tweets of a specific user
-
-router.route("/tweets/:tweetId").put(verifyJWT, updateTweet) // Route to update a tweet by ID
-        .delete(verifyJWT, deleteTweet); // Route to delete a tweet by ID
+router.route("/").post(createTweet);
+router.route("/user/:userId").get(getUserTweets);
+router.route("/:tweetId").patch(updateTweet).delete(deleteTweet);
 
 export default router;
