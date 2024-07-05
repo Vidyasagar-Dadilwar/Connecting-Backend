@@ -113,7 +113,7 @@ const loginUser = asyncHandler(async (req,res) =>{
       throw new ApiError(404,"User does not exists");
     }
 
-    const isPasswordValid = user.isPasswordCorrect(password);
+    const isPasswordValid = await user.isPasswordCorrect(password);
     if(!isPasswordValid){
       throw new ApiError(401,"Invalid password");
     }
@@ -182,7 +182,7 @@ const refreshAccessToken = asyncHandler( async(req,res) =>{
       process.env.REFRESH_TOKEN_SECRET
     );
   
-    const user = User.findById(decodedToken?._id);
+    const user = await User.findById(decodedToken?._id);
   
     if (!user) {
       throw new ApiError(401, "Invalid refresh token");
@@ -214,42 +214,61 @@ const refreshAccessToken = asyncHandler( async(req,res) =>{
       )
     )
   } catch (error) {
-    new ApiError(401, error?.message ||  "Invalid refresh token")
+    res.status(401).json(
+        new ApiResponse(401, null, error?.message || "Invalid refresh token")
+      );
+
   }
 })
 
-const changeCurrentPassword = asyncHandler( async(req,res) =>{
+const changeCurrentPassword = asyncHandler(async (req, res) => {
   try {
-    const {oldPassword, newPassword} = req.body;
+    const { oldPassword, newPassword } = req.body;
 
     const user = await User.findById(req.user?._id);
 
-    const isPasswordCorrect = user.isPasswordCorrect(oldPassword);
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
 
-    if(!isPasswordCorrect){
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+
+    if (!isPasswordCorrect) {
       throw new ApiError(400, "Invalid old password");
     }
 
-    user.password=newPassword;
-    await user.save({validateBeforeSave: false});
+    user.password = newPassword;
+    await user.save({ validateBeforeSave: false });
 
-    return res.status(200).json(
-      new ApiResponse(
-        200,
-        {},
-        "Password changed successfully"
-      )
-    )
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Password changed successfully"));
   } catch (error) {
-    new ApiError(401, error?.message || "Password change failed");
+    res
+      .status(401)
+      .json(
+        new ApiResponse(401, null, error?.message || "Password change failed")
+      );
   }
-})
+});
+
 
 const getCurrentUser = asyncHandler(async (req, res) => {
+  console.log(req.user);
+  const user = {
+    username: req.user.username,
+    email: req.user.email,
+    watchHistory: req.user.watchHistory
+  };
+
+  if(!user){
+    throw new ApiError(400, "Failed to fetch user");
+  }
+
   return res.status(200).json(
     new ApiResponse(
       200,
-      req.user, 
+      user, 
       "Current user fetched successfully"
     )
   );
